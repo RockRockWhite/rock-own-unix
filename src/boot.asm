@@ -11,13 +11,30 @@ mov es, ax
 mov ss, ax
 mov sp, 0x7c00
 
-; 文本显示器内存区
-mov ax, 0xb800
-mov ds, ax
-mov byte[0], 'H'
+xchg bx, bx
+
+mov si, booting
+call print
 
 ; 阻塞
 jmp $
+
+print:
+    mov ah, 0x0e
+
+.next:
+    mov al, [si]
+    cmp al, 0
+    je .done
+
+    int 0x10
+    inc si
+    jmp .next
+.done:
+    ret
+
+booting:
+    db "Booting System...", 10, 13, 0
 
 ; 填充mbr
 times 510 - ($ - $$) db 0
